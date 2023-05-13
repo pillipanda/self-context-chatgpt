@@ -79,7 +79,7 @@ async function copyVersionFromPackageJsonToManifests() {
 async function createZipExtensionForBrowser(browser) {
   const manifest = await fs.readJson(`${buildDir}/manifest.json`)
   const version = manifest.version
-  let archiveName = `build/webchatgpt-${version}-${browser}.zip`
+  let archiveName = `build/selfcontextchatgpt-${version}-${browser}.zip`
 
   const archive = archiver("zip", { zlib: { level: 9 } })
   const stream = fs.createWriteStream(archiveName)
@@ -120,7 +120,7 @@ async function build() {
 
   await cleanBuildDir()
   await runEsbuild()
-  
+
   const createZips = process.argv.includes("--create-zips")
   if (createZips) {
     try {

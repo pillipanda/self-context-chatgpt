@@ -1,7 +1,7 @@
 import Browser from "webextension-polyfill"
 import { v4 as uuidv4 } from 'uuid'
 import { getCurrentLanguageName, getLocaleLanguage, getTranslation, localizationKeys } from "./localization"
-import { getUserConfig } from "./userConfig"
+import { UserConfig, getUserConfig } from "./userConfig"
 import { SearchResult } from "src/content-scripts/ddg_search"
 
 export const SAVED_PROMPTS_KEY = 'saved_prompts'
@@ -18,6 +18,23 @@ const removeCommands = (query: string) => query.replace(/\/page:(\S+)\s*/g, '').
 export const promptContainsWebResults = async () => {
     const currentPrompt = await getCurrentPrompt()
     return currentPrompt.text.includes('{web_results}')
+}
+
+export interface PaperResult {
+    file: string
+    paper: string
+}
+
+export const compilePromptPaper = async (results: Array<PaperResult>, query: string, userConfig: UserConfig) => {
+    let retPrompt = `you task is to perform the follow actions:\n1 - read the following text delimited by <>\n2 - answer my question only based on those text in ${userConfig.region}. Make sure to cite results using [[number](file)] notation after the reference. if you do't know the answer, just say you don't know. my question is: `
+    retPrompt += query
+    retPrompt += "\n\ntext begin:\n"
+
+    let counter = 1
+    retPrompt += results.reduce((acc, result): string => acc += `[${counter++}]: <${result.paper}>\nFile: ${result.file}\n\n`, "")
+    retPrompt += "text end"
+
+    return retPrompt
 }
 
 export const compilePrompt = async (results: SearchResult[] | undefined, query: string) => {

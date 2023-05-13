@@ -6,7 +6,7 @@ import { getSystemLanguage } from './localization'
 const defaultConfig = {
     numWebResults: 3,
     webAccess: true,
-    region: 'wt-wt',
+    region: 'english',
     timePeriod: '',
     language: getSystemLanguage(),
     promptUUID: 'default',

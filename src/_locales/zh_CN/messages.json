@@ -1,8 +1,8 @@
 {
   "appName": {
-    "message": "WebChatGPT：可访问互联网的 ChatGPT"
+    "message": "SelfContextChatGPT：可访问自有资料库的 ChatGPT"
   },
   "appDesc": {
-    "message": "使用来自网络的相关结果增强您的 ChatGPT 提示。"
+    "message": "使用来自自己资料库的相关结果增强您的 ChatGPT 提示。"
   }
 }

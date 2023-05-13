@@ -4,10 +4,10 @@ import { getTextArea, getFooter, getRootElement, getSubmitButton, getWebChatGPTT
 import Toolbar from 'src/components/toolbar'
 import ErrorMessage from 'src/components/errorMessage'
 import { getUserConfig, UserConfig } from 'src/util/userConfig'
-import { SearchRequest, SearchResult, webSearch } from './ddg_search'
+import { SearchRequest, SearchResult, webSearch, completeQueryPaperSearch } from './ddg_search'
 
 import createShadowRoot from 'src/util/createShadowRoot'
-import { compilePrompt, promptContainsWebResults } from 'src/util/promptManager'
+import { compilePrompt, compilePromptPaper, promptContainsWebResults } from 'src/util/promptManager'
 import SlashCommandsMenu, { slashCommands } from 'src/components/slashCommandsMenu'
 import { apiExtractText } from './api'
 
@@ -53,11 +53,22 @@ async function processQuery(query: string, userConfig: UserConfig) {
             timerange: userConfig.timePeriod,
             region: userConfig.region,
         }
-
         results = await webSearch(searchRequest, userConfig.numWebResults)
     }
 
     return results
+}
+
+async function processQueryPaper(query: string, userConfig: UserConfig) {
+    const searchRequest: SearchRequest = {
+        query,
+        timerange: userConfig.timePeriod,
+        region: userConfig.region,
+        amount: userConfig.numWebResults,
+    }
+    // results = await webSearch(searchRequest, userConfig.numWebResults)
+
+    return await completeQueryPaperSearch(searchRequest)
 }
 
 async function handleSubmit(query: string) {
@@ -73,9 +84,19 @@ async function handleSubmit(query: string) {
     }
 
     try {
-        const results = await processQuery(query, userConfig)
-        const compiledPrompt = await compilePrompt(results, query)
-        textarea.value = compiledPrompt
+        // const results = await processQuery(query, userConfig)
+        // const compiledPrompt = await compilePrompt(results, query)
+        // console.log("final prompt", compiledPrompt)
+        // textarea.value = compiledPrompt
+        // pressEnter()
+
+        // const orResults = await processQuery(query, userConfig)
+        // const orCompiledPrompt = await compilePrompt(orResults, query)
+        // console.log("origin prompt", orCompiledPrompt)
+
+        const items = await processQueryPaper(query, userConfig)
+        const finalPrompt = await compilePromptPaper(items, query, userConfig)
+        textarea.value = finalPrompt
         pressEnter()
     } catch (error) {
         if (error instanceof Error) {
@@ -185,11 +206,11 @@ async function renderToolbar() {
 
 
 const mutationObserver = new MutationObserver((mutations) => {
-    
+
     if (!mutations.some(mutation => mutation.removedNodes.length > 0)) return
 
     console.info("WebChatGPT: Mutation observer triggered")
-    
+
     if (getWebChatGPTToolbar()) return
 
     try {

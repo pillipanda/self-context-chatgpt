@@ -1,5 +1,5 @@
 import Browser from 'webextension-polyfill'
-import { getHtml } from 'src/content-scripts/ddg_search'
+import { getHtml, getQueryComplete } from 'src/content-scripts/ddg_search'
 import { getWebpageTitleAndText } from 'src/content-scripts/api'
 
 
@@ -46,6 +46,10 @@ Browser.runtime.onMessage.addListener((message) => {
 
     if (message.type === "get_webpage_text") {
         return getWebpageTitleAndText(message.url, message.html)
+    }
+
+    if (message.type === "complete_query_paper") {
+        return getQueryComplete(message.search)
     }
 })
 
